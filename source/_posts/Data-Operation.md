@@ -59,14 +59,14 @@ torch.tensor(x) #from np.array to tensor
 
 
 ### Data Pre-processing
-- **Missing Data**
+**Missing Data**
 We usually have two methods, one is interpolation, the other is to delete incomplete data.
 There is another method that we rarely use, we can regard NaN as a separate type.
 ```
 inputs=inputs.fillna(inputs.mean())  #The simplest method is to fill nan with a mean
 pd.get_dummies(inputs, dummy_na=true) #One hot encode. dummy_na refers to whether create a column of Nan. 
 ```
-- **Difference between reshape and view**
+**Difference between reshape and view**
 reshape will not change the address.
 For example, b=a.reshape(3,4), then we change the value of b, a will also be changed with b.
 What's more, .clone() and .detach() have the similar characteristics.
@@ -75,12 +75,52 @@ B=A.clone() # B and A don't have the same address.
 B=A.detach() # B and A have the same address.
 ```
 
-- **Norm**
-L2: torch.norm()
-L1:
-F-Norm:
+**Norm**
+L2: torch.norm() points to the sum of the squares of each element and then find the square root.
+L1: The sum of absolute values.
+F-Norm: The root value of the sum of the squares of each item in the matrix.
 
-- **Common coding operations**
+**Constructor**
+- construct ordinary functions:
+from mxnet import sym
+a= sym.var()
+This is an explicit structure: Write down the formula first, and then give the value.
+
+- Implicit construction
+from mxnet import autogrid, nd
+With autogrid.record():
+	a=nd.ones((2,1))
+	b=nd.ones((2,1))
+
+- Chain rule
+Positive accumulation: Memory complexity O(1); Computational complexity O(n).
+Reverse transfer: Need to save all forward values. Memory complexity O(n).
+
+We can use the code: x.requires_grad(True) to save the grad of x, and use the code: x.grad to view x's grad.Then we can use the code: x.backward() to complete the derivation.
+If we don't need the gradient, we can use the code:detach to delete the gradient.
+
+Generally speaking, pytorch will accumulate the gridients. This has both advantages and disadvantages.
+Adavantage: if we don't have enough memory for caculating a batch, we can break the batch down into many small parts.
+Disadvante: we need use the code: x.grad.zero_() to empty the gradient.
+
+**Loss Function**
+L1 Loss: Absolute value loss. Whatever the gap, the update speed is stable.
+L2 Loss: Average square loss. The gap is larger, the update speed is faster.
+Huber's robust loss: combine the two loss function above.
+
+Softmax+Cross Entropy: loss=-log(y_prediction); Cross Entropy only pays attention to the value of the element corresponding to the real value.
+
+**Optimization Method**
+Small batch random gradient descent: Randomly sample n samples to approximate the loss.
+Theoretically speaking, because of the noise, the smaller the batch-size is, the effect is better.
+
+We should make sure that the data reading speed is faster than the training speed before training. The code listed below could be used:
+	time=d2l.Timer()
+	For x,y in train_iter:
+	Continue
+	F’{timer.stop():.2f} sec’
+	
+**Common coding operations**
 ```python
 import os
 os.makedirs(os.path.join(a,b,c),exit_ok=) #exit_ok means if the folder already exists, do nothing.
@@ -93,8 +133,18 @@ data=pd.read_csv(data_file) #read the document of csv format
 
 inputs, outputs=data.iloc[:,0:2],data.iloc[:,2] #iloc means index location
 
+y=torch.tensor([0,2])
+y_hat[[0,1],y] #take out the element of subscript 0 of sample 0 and the element of subscript 2 of sample 1.
+
 X.T #Transposition pf X
 
 torch.mv(A, B) #matrix multiplies vector, (m,n)*(n,1)=(m,1)
 torch.mm(A, B) #matrix multiplies matrix. (m,n)*(n,x)=(m,x)
+torch.dot(,) #Internal product x1y1+x2y2+x3y3
+
+torch.normal(mean,std,size) #std means standard deviation
+
+data.tensordataset
+data.dataloader
+nn.sequential()
 ```
