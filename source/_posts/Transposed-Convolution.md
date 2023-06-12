@@ -14,13 +14,13 @@ The shape is inverse, while the value is not, so **it is not a deconvolution**.
 4.Do normal convolution.
 
 **Shape conversion**
-- Input: 
+- **Input:**
 height=n
 width=n
 kernel=k
 padding=p
 stride=s
-- Output:
+- **Output:**
 n'=sn+j-2p-s
 
 **If we want to double the height and width, k=2p+s.**
